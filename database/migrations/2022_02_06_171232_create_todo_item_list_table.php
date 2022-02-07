@@ -13,15 +13,18 @@ class CreateTodoItemListTable extends Migration
      */
     public function up()
     {
-        Schema::create('todo_item_list', function (Blueprint $table) {
+        Schema::create('task_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('users_todolist_id');
+            $table->unsignedBigInteger('task_id');
             $table->string('title');
             $table->boolean('isFinished')->default(false);
+            $table->boolean('php')->default(false);
+            $table->boolean('js')->default(false);
+            $table->boolean('css')->default(false);
             $table->timestamps();
 
-            $table->index(['id', 'users_todolist_id', 'title']);
-            $table->foreign('users_todolist_id')->references('id')->on('users_todolist');
+            $table->index(['id', 'task_id', 'title']);
+            $table->foreign('task_id')->references('id')->on('tasks');
         });
     }
 

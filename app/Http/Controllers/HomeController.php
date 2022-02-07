@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\TodoList;
+use App\Models\Task;
 
 class HomeController extends Controller
 {

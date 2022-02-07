@@ -7,7 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\TodoListController;
+use App\Http\Controllers\TaskController;
 
 
 
@@ -35,15 +35,14 @@ Route::get('/register', [RegisterController::class])
     ->name('register');
 
 Route::get('/home', [HomeController::class, 'index'])
-    ->name('home')
-    ->middleware(Authenticate::class);
+    ->name('home');
 
 /**
  * TODO LIST ROUTES
  */
-Route::get('/todolist', [TodoListController::class, 'index'])
+Route::get('/todolist', [TaskController::class, 'index'])
     ->name('todolist_index');
-Route::post('/todolist', [TodoListController::class, 'store'])
+Route::post('/todolist', [TaskController::class, 'store'])
     ->name('todolist_store');
-Route::delete('/todolist', [TodoListController::class, 'destroy'])
+Route::delete('/todolist', [TaskController::class, 'destroy'])
     ->name('todolist_destroy');

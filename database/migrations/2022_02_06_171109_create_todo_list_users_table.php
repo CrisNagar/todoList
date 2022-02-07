@@ -13,7 +13,7 @@ class CreateTodoListUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users_todolist', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('title');
