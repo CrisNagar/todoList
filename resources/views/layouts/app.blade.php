@@ -97,7 +97,22 @@
         const modal = new bootstrap.Modal(document.getElementById('addTaskModal'));
 
         function load() {
+            $.ajaxSetup({
+                enctype: 'multipart/form-data',
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
             btnListener('modals');
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
         }
 
         function showModal() {
@@ -155,12 +170,12 @@
             let btnJS = document.createElement('input');
             btnJS.setAttribute('class', 'btn-check');
             btnJS.setAttribute('type', 'checkbox');
-            btnJS.setAttribute('id', 'javascript' + number + '');
-            btnJS.setAttribute('name', 'taskItem[' + number + '][javascript]');
+            btnJS.setAttribute('id', 'js' + number + '');
+            btnJS.setAttribute('name', 'taskItem[' + number + '][js]');
 
             let labelJS = document.createElement('label');
             labelJS.setAttribute('class', 'btn btn-outline-info text-dark');
-            labelJS.setAttribute('for', 'javascript' + number + '');
+            labelJS.setAttribute('for', 'js' + number + '');
             labelJS.innerText = 'JavaScript';
 
             let btnCSS = document.createElement('input');
@@ -241,23 +256,41 @@
         }
 
         function saveTask(task) {
-            const formData = $(task).serialize();
-
-            console.log(formData);
+            let formData = new FormData(task);
+            formData.append('_token', '{{ csrf_token() }}');
 
             $.ajax({
                 url: "{{ route('todolist_store') }}",
                 method: 'POST',
-                dataType: 'json',
-                data: {
-                    form: formData,
-                    _token: "{{ csrf_token() }}"
-                },
+                data: formData,
                 success: function(res) {
+                    showModal();
+                    reloadData();
+                    task.reset();
                     console.log(res);
                 },
                 error: function(error) {
                     console.log(error);
+                }
+            });
+        }
+
+        function editTask(task) {}
+
+        function deleteTask(task) {}
+
+        function resolveTask(task) {}
+
+        function reloadData() {
+            $.ajax({
+                url: "{{ route('todolist_index') }}",
+                method: 'GET',
+                data: "reloadData='true'",
+                success: function(res) {
+                    console.log(res);
+                },
+                error: function(error) {
+                    console.log(error.message);
                 }
             });
         }
