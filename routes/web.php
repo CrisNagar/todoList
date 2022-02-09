@@ -40,9 +40,4 @@ Route::get('/home', [HomeController::class, 'index'])
 /**
  * TODO LIST ROUTES
  */
-Route::get('/todolist', [TaskController::class, 'index'])
-    ->name('todolist_index');
-Route::post('/todolist', [TaskController::class, 'store'])
-    ->name('todolist_store');
-Route::delete('/todolist', [TaskController::class, 'destroy'])
-    ->name('todolist_destroy');
+Route::resource('task', TaskController::class);

@@ -24,8 +24,8 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        $todoList = $request->user()->todoList()->get();
+        $taskList = $request->user()->todoList()->get();
 
-        return view('home', ['todoList' => $todoList]);
+        return view('home', ['taskList' => $taskList]);
     }
 }
