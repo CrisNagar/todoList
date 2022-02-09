@@ -13,7 +13,7 @@
                         <div class="text-end m-auto">
                             <button type="button" class="btn btn-show-modal btn-outline-success align-items-center"
                                 data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('Add new taks') }}"
-                                data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                                data-bs-toggle="modal" data-bs-target="#taskFormModal">
                                 <i class="fas fa-plus-circle"></i>
                             </button>
                         </div>
@@ -26,7 +26,7 @@
                                 @foreach ($todoList as $task)
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="heading{{ $task->id }}">
-                                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#{{ trim($task->title) }}{{ $task->id }}"
                                                 aria-expanded="false"
                                                 aria-controls="{{ trim($task->title) }}{{ $task->id }}">
@@ -43,13 +43,13 @@
 
                                                         <div class="btn-group" role="group"
                                                             aria-label="Action buttons">
-                                                            <button type="button" class="btn btn-delete btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete task">
+                                                            <button type="button" class="btn btn-delete btn-outline-danger" data-task="{{ $task->id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete task">
                                                                 <i class="fas fa-trash-alt"></i>
                                                             </button>
-                                                            <button type="button" class="btn btn-edit btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit task">
+                                                            <button type="button" class="btn btn-edit btn-outline-info" data-task="{{ $task->id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit task">
                                                                 <i class="fas fa-edit"></i>
                                                             </button>
-                                                            <button type="button" class="btn btn-resolve btn-outline-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Resolve task">
+                                                            <button type="button" class="btn btn-resolve btn-outline-success" data-task="{{ $task->id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Resolve task">
                                                                 <i class="fas fa-tasks"></i>
                                                             </button>
                                                         </div>
@@ -108,5 +108,5 @@
         </div>
     </div>
 
-    @include('tasks.addtodolist')
+    @include('tasks.taskFormModal')
 @endsection
