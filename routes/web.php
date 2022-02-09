@@ -38,6 +38,8 @@ Route::get('/home', [HomeController::class, 'index'])
     ->name('home');
 
 /**
- * TODO LIST ROUTES
+ * TASK ROUTES
  */
 Route::resource('task', TaskController::class);
+Route::post('/getTask/{id}', [TaskController::class, 'getTask'])
+    ->name('get_task');
