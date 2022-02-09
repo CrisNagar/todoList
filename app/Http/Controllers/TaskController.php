@@ -16,14 +16,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $all = Task::all();
-
-        if (isset($_GET['reloadData']) && $_GET['reloadData'] == 'true') {
-            foreach ($all as $Task) {
-                $items = TaskItem::where('id', $Task->id)->first();
-                return response()->json($items);
-            }
-        }
+        //
     }
 
     /**
@@ -44,19 +37,24 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        if ($request->ajax() && $request->method() == 'POST') {
-            $task = new Task();
+        if ($request->ajax() && $request->isMethod('post')) {
+            $validated = $request->validate([
+                'title' => 'required',
+            ]);
+
+            if (!$validated) {
+                return response()->json(__('Title is required'));
+            }
 
             $data = $request->all();
 
-            if (!empty($data['title']) && !empty($data['description'])) {
-                $task->mapping([
-                    'title' => $data['title'],
-                    'description' => $data['description']
-                ]);
-                $task->user_id = Auth::user()->id;
-                $task->save();
-            }
+            $task = new Task();
+            $task->mapping([
+                'title' => $data['title'],
+                'description' => empty($data['description'] ? '' : $data['description'])
+            ]);
+            $task->user_id = Auth::user()->id;
+            $task->save();
 
             if (!empty($data['taskItem'])) {
                 foreach ($data['taskItem'] as $item) {
@@ -67,7 +65,8 @@ class TaskController extends Controller
                 }
             }
 
-            return response()->json($task);
+            $all = Task::all();
+            return response()->json(view('tasks.taskTable', ['taskList' => $all])->render());
         }
     }
 
@@ -108,10 +107,10 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Task  $task
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Task $task)
+    public function destroy($id)
     {
         //
     }
