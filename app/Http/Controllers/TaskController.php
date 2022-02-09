@@ -43,7 +43,7 @@ class TaskController extends Controller
             ]);
 
             if (!$validated) {
-                return response()->json(__('Title is required'));
+                return 'Title is required';
             }
 
             $data = $request->all();
@@ -65,8 +65,9 @@ class TaskController extends Controller
                 }
             }
 
-            $all = Task::all();
-            return response()->json(view('tasks.taskTable', ['taskList' => $all])->render());
+            $this->ajaxReturn();
+        } else {
+            return 'Method not allowed.';
         }
     }
 
@@ -112,6 +113,32 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        //
+        if ($id == 0 || $id == null) {
+            return "ID can't be {$id}";
+        }
+
+        $task = Task::findOrFail($id);
+
+        if ($task != null) {
+            if ($task->taskItems != null) {
+                foreach ($task->taskItems as $item) {
+                    $item->delete();
+                }
+            }
+
+            $task->delete();
+            $this->ajaxReturn();
+        } else {
+            return "This Task with id: {$id}. Not exist";
+        }
+    }
+
+    /**
+     * Return method to ajax methods
+     */
+    private function ajaxReturn()
+    {
+        $all = Task::all();
+        return response()->json(view('tasks.taskTable', ['taskList' => $all])->render());
     }
 }

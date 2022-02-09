@@ -316,7 +316,7 @@
             url = url.replace(':id', task);
             $.ajax({
                 url: url,
-                method: 'POST',
+                method: 'PUT',
             }).done((res) => {
                 task.reset();
                 toggleModal();
