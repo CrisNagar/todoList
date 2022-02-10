@@ -37,7 +37,7 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        if ($request->ajax() && $request->isMethod('post')) {
+        if ($request->ajax() && $request->isMethod('POST')) {
             $validated = $request->validate([
                 'title' => 'required',
             ]);
@@ -65,7 +65,7 @@ class TaskController extends Controller
                 }
             }
 
-            $this->ajaxReturn();
+            return $this->ajaxReturn();
         } else {
             return 'Method not allowed.';
         }
@@ -97,12 +97,29 @@ class TaskController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Task  $task
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Task $task)
+    public function update(Request $request, $id)
     {
-        //
+        if ($id == 0 || $id == null) {
+            return "ID can't be {$id}";
+        }
+
+        $task = Task::findOrFail($id);
+
+        if ($task != null) {
+            if ($task->taskItems != null) {
+                foreach ($task->taskItems as $item) {
+                    $item->delete();
+                }
+            }
+
+            $task->delete();
+            return $this->ajaxReturn();
+        } else {
+            return "This Task with id: {$id}. Not exist";
+        }
     }
 
     /**
@@ -127,10 +144,25 @@ class TaskController extends Controller
             }
 
             $task->delete();
-            $this->ajaxReturn();
+            return $this->ajaxReturn();
         } else {
             return "This Task with id: {$id}. Not exist";
         }
+    }
+
+    /**
+     * Aux method to get a single Task from DDBB.
+     * @param  int $id
+     * @return \App\Models\Task  $task
+     */
+    public function getTask($id)
+    {
+        if ($id == 0 || $id == null) {
+            return "ID can't be {$id}";
+        }
+
+        $task = Task::findOrFail($id);
+        return response()->json(view('tasks.taskFormModal', ['task' => $task])->render());
     }
 
     /**
