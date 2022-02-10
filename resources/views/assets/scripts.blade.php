@@ -1,7 +1,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', load, false);
 
-    const modal = new bootstrap.Modal(document.getElementById('taskFormModal'));
+    var modal = new bootstrap.Modal(document.getElementById('taskFormModal'));
     const toast = new bootstrap.Toast(document.getElementById('toastAlert'));
 
     function load() {
@@ -15,10 +15,18 @@
             }
         });
 
-        btnListener('modals');
+        setFormButtons('modals');
         setActionButtons();
         initTooltips();
+        initShowTaskForm();
 
+    }
+
+    function setTaskFormModal(newModal) {
+        const modalWrapper = document.getElementById('taskModal');
+        modalWrapper.innerHTML = newModal;
+        modal.dispose();
+        modal = bootstrap.Modal.getOrCreateInstance(modalWrapper.children[0])
     }
 
     function toggleModal() {
@@ -34,10 +42,10 @@
 
     function initShowTaskForm() {
         const modalButton = document.getElementById('btnShowTaskFormModal');
-        modalButton[i].addEventListener('click', function() {
+        modalButton.addEventListener('click', function() {
             toggleModal();
-            btnListener('newTaskItem');
-            btnListener('deleteNewTaskItem');
+            setFormButtons('newTaskItem');
+            setFormButtons('deleteNewTaskItem');
         })
     }
 
@@ -139,32 +147,46 @@
 
         listGroup.appendChild(li);
 
-        btnListener('deleteNewTaskItem');
+        setFormButtons('deleteNewTaskItem');
     }
 
     function removeNewTask(el) {
         el.parentNode.parentNode.parentNode.remove();
     }
 
-    function btnListener(type) {
-        if (type == 'newTaskItem') {
-            let newTasksButtons = document.getElementsByClassName('btn-add-task');
-            for (let i = 0; i < newTasksButtons.length; i++) {
+    function setFormButtons(type) {
+        const saveButton = document.getElementById('saveTaskBtn');
+        if (saveButton != null && saveButton.getAttribute('listener') !== 'true') {
+            saveButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                const el = document.getElementById('taskForm');
+                saveTask(el);
+                saveButton.setAttribute('listener', 'true');
+            });
+        }
+
+        const editButton = document.getElementById('editTaskBtn');
+        if (editButton != null && editButton.getAttribute('listener') !== 'true') {
+            editButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                const el = document.getElementById('taskForm');
+                editTask(el);
+                editButton.setAttribute('listener', 'true');
+            });
+        }
+
+        const newTasksButtons = document.getElementsByClassName('btn-add-task');
+        for (let i = 0; i < newTasksButtons.length; i++) {
+            if (newTasksButtons[i].getAttribute('listener') !== 'true') {
                 newTasksButtons[i].addEventListener('click', function() {
                     addNewTaskItem();
                 });
             }
-
-            let saveButton = document.getElementById('saveTaskBtn');
-            saveButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                saveTask(document.getElementById('taskForm'));
-            })
         }
 
-        if (type == 'deleteNewTaskItem') {
-            let removeNewTasksButtons = document.getElementsByClassName('btn-delete-task');
-            for (let i = 0; i < removeNewTasksButtons.length; i++) {
+        const removeNewTasksButtons = document.getElementsByClassName('btn-delete-task');
+        for (let i = 0; i < removeNewTasksButtons.length; i++) {
+            if (removeNewTasksButtons[i].getAttribute('listener') !== 'true') {
                 removeNewTasksButtons[i].addEventListener('click', function() {
                     removeNewTask(this);
                 });
@@ -178,30 +200,30 @@
         const btnResolve = document.getElementsByClassName('btn-resolve');
 
         for (let i = 0; i < btnDelete.length; i++) {
-            btnDelete[i].addEventListener('click', function() {
-                deleteTask(this.dataset.task);
-            });
+            if (btnDelete[i].getAttribute('listener') !== 'true') {
+                btnDelete[i].addEventListener('click', function() {
+                    deleteTask(this.dataset.task);
+                });
+            }
         }
 
         for (let i = 0; i < btnEdit.length; i++) {
-            btnEdit[i].addEventListener('click', function() {
-                const id = this.dataset.task
-                getTask(id);
+            if (btnEdit[i].getAttribute('listener') !== 'true') {
+                btnEdit[i].addEventListener('click', function() {
+                    getTask(this.dataset.task);
 
-                /* document.getElementById('editTaskBtn').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    editTask(id);
-                }); */
-
-                btnListener('newTasks');
-                btnListener('deleteNewTaskItem');
-            });
+                    setFormButtons();
+                    setFormButtons();
+                });
+            }
         }
 
         for (let i = 0; i < btnResolve.length; i++) {
-            btnResolve[i].addEventListener('click', function() {
-                resolveTask(this.dataset.task);
-            });
+            if (btnResolve[i].getAttribute('listener') !== 'true') {
+                btnResolve[i].addEventListener('click', function() {
+                    resolveTask(this.dataset.task);
+                });
+            }
         }
     }
 
@@ -242,17 +264,15 @@
     }
 
     function getTask(task) {
-        let url = "{{ route('task.edit', ':id') }}";
+        let url = "{{ route('get_task', ':id') }}";
         url = url.replace(':id', task);
         $.ajax({
             url: url,
             method: 'POST',
         }).done((res) => {
-            modal.dispose();
-            document.getElementById('taskModal').innerHTML = res;
-            setModal(document.getElementById('taskFormModal'));
+            setTaskFormModal(res);
             toggleModal();
-            console.log(res);
+            setFormButtons();
         }).fail((error) => {
             console.log(error);
         });
