@@ -41,6 +41,10 @@ class TaskItem extends Model
     public function mapping($item)
     {
         foreach ($item as $key => $value) {
+            if ($key == '' || $value == '') {
+                continue;
+            }
+            
             if ($key === 'php' || $key === 'js' || $key === 'css') {
                 $value = $value === 'on';
             }

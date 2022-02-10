@@ -17,6 +17,7 @@
 
             <div class="modal-body">
                 <form id="taskForm">
+                    <input type="hidden" name="id" value="{{ isset($task) ? $task->id : 'null' }}" />
                     <div class="container">
                         <div class="vstack gap-3">
                             <div class="form-floating">
@@ -34,7 +35,7 @@
                             <hr>
 
                             <div class="hstack gap-3">
-                                <button type="button" class="btn btn-add-task btn-info">
+                                <button id="btnAddSubTask" type="button" class="btn btn-info">
                                     {{ __('Add task') }}
                                 </button>
                             </div>
@@ -126,7 +127,8 @@
                 <button type="reset" class="btn btn-outline-danger">{{ __('Clean') }}</button>
 
                 @if (@isset($task))
-                    <button type="button" class="btn btn-outline-success" id="editTaskBtn">{{ __('Save') }}</button>
+                    <button type="button" class="btn btn-outline-success" id="editTaskBtn"
+                        data-task="{{ $task->id }}"> {{ __('Save') }}</button>
                 @else
                     <button type="button" class="btn btn-outline-success" id="saveTaskBtn">{{ __('Save') }}</button>
                 @endif

@@ -44,7 +44,7 @@
     <section id="loginForm">
         <div class="card">
             <div class="d-flex flex-column text-center">
-                <i class="fas fa-check-double fa-5x mt-5"></i>
+                <i class="fas fa-check-double fa-5x mt-5 mx-auto"></i>
                 <h1 class="my-3">
                     <span class="text-warning">TODO</span> LIST
                 </h1>
@@ -80,7 +80,7 @@
 
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" role="switch" id="rememberSwitch"
-                            {{ old('remember') ? 'checked' : '' }}>
+                            {{ old('remember') ? 'checked' : '' }} name="remember">
                         <label class="form-check-label ms-3" for="rememberSwitch">
                             {{ __('Remember Me') }}
                         </label>

@@ -2,64 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use App\Models\TaskItem;
 use Illuminate\Http\Request;
 
 class TaskItemController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\TaskItem  $taskItem
-     * @return \Illuminate\Http\Response
-     */
-    public function show(TaskItem $taskItem)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\TaskItem  $taskItem
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(TaskItem $taskItem)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      *
@@ -67,19 +15,37 @@ class TaskItemController extends Controller
      * @param  \App\Models\TaskItem  $taskItem
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, TaskItem $taskItem)
+    public function updateSingle(Request $request, TaskItem $taskItem)
     {
-        //
+        $taskItem->isFinished = !$taskItem->isFinished;
+        $taskItem->save();
+
+        return "Update!!!";
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update a group TaskItem in Task.
      *
-     * @param  \App\Models\TaskItem  $taskItem
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(TaskItem $taskItem)
+    public function updateGroup(Request $request, $id)
     {
-        //
+        $task = Task::findOrFail($id);
+        foreach ($task->taskItems as $taskItem) {
+            $taskItem->isFinished = true;
+            $taskItem->save();
+        }
+        return $this->ajaxReturn();
+    }
+
+    /**
+     * Return method to ajax methods
+     */
+    private function ajaxReturn()
+    {
+        $all = Task::all();
+        return response()->json(view('tasks.taskTable', ['taskList' => $all])->render());
     }
 }

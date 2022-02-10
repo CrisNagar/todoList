@@ -18,18 +18,18 @@
 
                                 <div class="btn-group" role="group" aria-label="Action buttons">
                                     <button type="button" class="btn btn-delete btn-outline-danger"
-                                        data-task="{{ $task->id }}" data-bs-toggle="tooltip"
-                                        data-bs-placement="top" title="Delete task">
+                                        data-task="{{ $task->id }}" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Delete task">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                     <button type="button" class="btn btn-edit btn-outline-info"
-                                        data-task="{{ $task->id }}" data-bs-toggle="tooltip"
-                                        data-bs-placement="top" title="Edit task">
+                                        data-task="{{ $task->id }}" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Edit task">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-resolve btn-outline-success"
-                                        data-task="{{ $task->id }}" data-bs-toggle="tooltip"
-                                        data-bs-placement="top" title="Resolve task">
+                                        data-task="{{ $task->id }}" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Resolve task">
                                         <i class="fas fa-tasks"></i>
                                     </button>
                                 </div>
@@ -40,11 +40,13 @@
                                 @foreach ($task->taskItems as $item)
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" role="switch"
-                                                id="{{ $item->title }}{{ $item->id }}">
+                                            <input class="form-check-input switch-resolve-task" type="checkbox"
+                                                role="switch" id="{{ trim($item->title) }}{{ $item->id }}"
+                                                data-task="{{ $item->id }}"
+                                                {{ $item->isFinished ? 'checked' : '' }}>
 
                                             <label class="form-check-label"
-                                                for="{{ $item->title }}{{ $item->id }}">
+                                                for="{{ trim($item->title) }}{{ $item->id }}">
                                                 <h6>{{ $item->title }}</h6>
                                             </label>
                                         </div>

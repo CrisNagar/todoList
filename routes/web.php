@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\RegisterController;
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskItemController;
+use App\Http\Controllers\SearchController;
 
 
 
@@ -22,14 +24,7 @@ use App\Http\Controllers\TaskController;
 |
 */
 
-Route::get('/', [LoginController::class, 'login'])
-    ->name('login');
 
-Route::post('/singin', [LoginController::class, 'authenticate'])
-    ->name('singin');
-
-Route::get('/logout', [LoginController::class, 'logout'])
-    ->name('logout');
 
 Route::get('/register', [RegisterController::class])
     ->name('register');
@@ -37,9 +32,30 @@ Route::get('/register', [RegisterController::class])
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home');
 
+
+
+Route::get('/', [LoginController::class, 'login'])
+    ->name('login');
+    
+Route::post('/auth', [LoginController::class, 'authenticate'])
+    ->name('singin');
+
+Route::get('/logout', [LoginController::class, 'logout'])
+    ->name('logout');
+
 /**
  * TASK ROUTES
  */
+Route::post('/task/update', [TaskController::class, 'customUpdate'])
+    ->name('custom_update');
+
 Route::resource('task', TaskController::class);
-Route::post('/getTask/{id}', [TaskController::class, 'getTask'])
-    ->name('get_task');
+
+Route::put('taskItem/{taskItem}', [TaskItemController::class, 'updateSingle'])
+    ->name('update_single');
+
+Route::put('taskItem/group/{id}', [TaskItemController::class, 'updateGroup'])
+    ->name('update_group');
+
+Route::get('search/{query}', [SearchController::class, 'search'])
+    ->name('search');

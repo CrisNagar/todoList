@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
+use App\Models\Task;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -50,9 +52,12 @@ class LoginController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->only('email', 'password');
+        $remember = $request->only('remember');
 
-        if (Auth::attempt($credentials)) {
-            return redirect()->intended('home');
+        if (Auth::attempt($credentials, $remember)) {
+            return redirect()->intended('/home');
+        } else {
+            return redirect()->intended('/');
         }
     }
 
@@ -64,6 +69,7 @@ class LoginController extends Controller
     public function logout()
     {
         Auth::logout();
+        Session::flush();
 
         return redirect()->intended('/');
     }

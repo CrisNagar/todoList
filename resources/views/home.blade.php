@@ -6,9 +6,8 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="hstack gap-3 p-2">
-                        <input class="form-control me-auto" type="text" placeholder="Search your tasks..."
-                            aria-label="Search your tasks...">
-                        <button type="button" class="btn btn-secondary">{{ __('Search') }}</button>
+                        <input id="searchTaskInput" class="form-control me-auto" type="text"
+                            placeholder="Search by title or description" aria-label="Search by title or description">
                         <div class="vr"></div>
                         <div class="text-end m-auto">
                             <button id="btnShowTaskFormModal" type="button"

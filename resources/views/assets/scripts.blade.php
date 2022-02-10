@@ -15,10 +15,10 @@
             }
         });
 
-        setFormButtons('modals');
         setActionButtons();
         initTooltips();
         initShowTaskForm();
+        initSearchFrom();
 
     }
 
@@ -40,12 +40,37 @@
         })
     }
 
+    function initSearchFrom() {
+        const search = document.getElementById('searchTaskInput');
+        search.addEventListener('keydown', function() {
+            let url = "{{ route('search', ':query') }}";
+            url = url.replace(':query', this.value);
+
+            $.ajax({
+                url: url,
+                method: 'GET',
+            }).done((res) => {
+                document.getElementById('taskTable').innerHTML = res;
+                setActionButtons();
+            }).fail((error) => {
+                console.log(error);
+            });
+        })
+    }
+
     function initShowTaskForm() {
         const modalButton = document.getElementById('btnShowTaskFormModal');
         modalButton.addEventListener('click', function() {
-            toggleModal();
-            setFormButtons('newTaskItem');
-            setFormButtons('deleteNewTaskItem');
+            $.ajax({
+                url: "{{ route('task.create') }}",
+                method: 'GET',
+            }).done((res) => {
+                setTaskFormModal(res);
+                toggleModal();
+                setFormButtons();
+            }).fail((error) => {
+                console.log(error);
+            });
         })
     }
 
@@ -147,7 +172,7 @@
 
         listGroup.appendChild(li);
 
-        setFormButtons('deleteNewTaskItem');
+        setFormButtons();
     }
 
     function removeNewTask(el) {
@@ -161,6 +186,7 @@
                 e.preventDefault();
                 const el = document.getElementById('taskForm');
                 saveTask(el);
+                setActionButtons();
                 saveButton.setAttribute('listener', 'true');
             });
         }
@@ -170,18 +196,18 @@
             editButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 const el = document.getElementById('taskForm');
-                editTask(el);
+                updateTask(el);
+                setActionButtons();
                 editButton.setAttribute('listener', 'true');
             });
         }
 
-        const newTasksButtons = document.getElementsByClassName('btn-add-task');
-        for (let i = 0; i < newTasksButtons.length; i++) {
-            if (newTasksButtons[i].getAttribute('listener') !== 'true') {
-                newTasksButtons[i].addEventListener('click', function() {
-                    addNewTaskItem();
-                });
-            }
+        const addSubTaskButton = document.getElementById('btnAddSubTask');
+        if (addSubTaskButton.getAttribute('listener') !== 'true') {
+            addSubTaskButton.addEventListener('click', function() {
+                addNewTaskItem();
+                addSubTaskButton.setAttribute('listener', 'true');
+            });
         }
 
         const removeNewTasksButtons = document.getElementsByClassName('btn-delete-task');
@@ -198,11 +224,13 @@
         const btnDelete = document.getElementsByClassName('btn-delete');
         const btnEdit = document.getElementsByClassName('btn-edit');
         const btnResolve = document.getElementsByClassName('btn-resolve');
+        const switchResolve = document.getElementsByClassName('switch-resolve-task');
 
         for (let i = 0; i < btnDelete.length; i++) {
             if (btnDelete[i].getAttribute('listener') !== 'true') {
                 btnDelete[i].addEventListener('click', function() {
                     deleteTask(this.dataset.task);
+                    setActionButtons();
                 });
             }
         }
@@ -211,8 +239,6 @@
             if (btnEdit[i].getAttribute('listener') !== 'true') {
                 btnEdit[i].addEventListener('click', function() {
                     getTask(this.dataset.task);
-
-                    setFormButtons();
                     setFormButtons();
                 });
             }
@@ -221,7 +247,15 @@
         for (let i = 0; i < btnResolve.length; i++) {
             if (btnResolve[i].getAttribute('listener') !== 'true') {
                 btnResolve[i].addEventListener('click', function() {
-                    resolveTask(this.dataset.task);
+                    resolveTask(this.dataset.task, 'group');
+                });
+            }
+        }
+
+        for (let i = 0; i < switchResolve.length; i++) {
+            if (switchResolve[i].getAttribute('listener') !== 'true') {
+                switchResolve[i].addEventListener('change', function() {
+                    resolveTask(this.dataset.task, 'single');
                 });
             }
         }
@@ -246,29 +280,32 @@
         });
     }
 
-    function editTask(task) {
-        let url = "{{ route('task.edit', ':id') }}";
-        url = url.replace(':id', task);
+    function updateTask(task) {
+        let formData = new FormData(task);
+        formData.append('_token', '{{ csrf_token() }}');
 
-        return console.log(modal)
         $.ajax({
-            url: url,
-            method: 'PUT',
+            url: "{{ route('custom_update') }}",
+            method: 'POST',
+            data: formData
         }).done((res) => {
             task.reset();
             toggleModal();
-            console.log(res);
+            document.getElementById('taskTable').innerHTML = res;
+            setActionButtons();
         }).fail((error) => {
+            toggleModal();
+            //toggleToast('danger', 'Edit task is FAIL!');
             console.log(error);
         });
     }
 
     function getTask(task) {
-        let url = "{{ route('get_task', ':id') }}";
+        let url = "{{ route('task.edit', ':id') }}";
         url = url.replace(':id', task);
         $.ajax({
             url: url,
-            method: 'POST',
+            method: 'GET',
         }).done((res) => {
             setTaskFormModal(res);
             toggleModal();
@@ -286,26 +323,31 @@
             url: url,
             method: 'DELETE'
         }).done((res) => {
-            console.log(res);
+            document.getElementById('taskTable').innerHTML = res;
+            setActionButtons();
         }).fail((error) => {
             console.log(error);
         });
     }
 
-    function resolveTask(task) {
+    function resolveTask(task, source) {
+        let url = "";
+        if (source == 'group') {
+            url = "{{ route('update_group', ':id') }}"
+            url = url.replace(':id', task);
+        } else {
+            url = "{{ route('update_single', ':taskItem') }}"
+            url = url.replace(':taskItem', task);
+        }
+
         $.ajax({
-            url: "{{ route('task.store') }}",
-            method: 'POST',
-            data: task,
-            success: function(res) {
-                toggleModal();
-                reloadData();
-                task.reset();
-                console.log(res.message);
-            },
-            error: function(error) {
-                console.log(error);
-            }
+            url: url,
+            method: 'PUT',
+        }).done((res) => {
+            document.getElementById('taskTable').innerHTML = res;
+            setActionButtons();
+        }).fail((error) => {
+            console.log(error);
         });
     }
 </script>

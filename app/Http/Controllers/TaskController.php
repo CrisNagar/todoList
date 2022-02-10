@@ -26,7 +26,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json(view('tasks.taskFormModal')->render());
     }
 
     /**
@@ -51,7 +51,7 @@ class TaskController extends Controller
             $task = new Task();
             $task->mapping([
                 'title' => $data['title'],
-                'description' => empty($data['description'] ? '' : $data['description'])
+                'description' => empty($data['description']) ? '' : $data['description']
             ]);
             $task->user_id = Auth::user()->id;
             $task->save();
@@ -85,10 +85,28 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Task  $task
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Task $Task)
+    public function edit($id)
+    {
+        if ($id == 0 || $id == null) {
+            return "ID can't be {$id}";
+        }
+
+        $task = Task::findOrFail($id);
+        return response()->json(view('tasks.taskFormModal', ['task' => $task])->render());
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Task  $task
+     * @param  \App\Models\TaskItem $taskItem
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Task $task)
     {
         //
     }
@@ -97,29 +115,51 @@ class TaskController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function customUpdate(Request $request)
     {
-        if ($id == 0 || $id == null) {
-            return "ID can't be {$id}";
+        $validated = $request->validate([
+            'title' => 'required',
+        ]);
+
+        if (!$validated) {
+            return 'Title is required';
         }
 
-        $task = Task::findOrFail($id);
 
-        if ($task != null) {
-            if ($task->taskItems != null) {
+
+        $task = Task::findOrFail($request->get('id'));
+        $data = $request->all();
+
+        $task->mapping([
+            'title' => $data['title'],
+            'description' => empty($data['description']) ? '' : $data['description']
+        ]);
+
+        if (isset($data['taskItem'])) {
+            if ($task->taskItems) {
                 foreach ($task->taskItems as $item) {
                     $item->delete();
                 }
             }
 
-            $task->delete();
-            return $this->ajaxReturn();
+            foreach ($data['taskItem'] as $item) {
+                $taskItem = new TaskItem();
+                $taskItem->task_id = $task->id;
+                $taskItem->mapping($item);
+                $taskItem->save();
+            }
         } else {
-            return "This Task with id: {$id}. Not exist";
+            if ($task->taskItems) {
+                foreach ($task->taskItems as $item) {
+                    $item->delete();
+                }
+            }
         }
+
+        $task->save();
+        return $this->ajaxReturn();
     }
 
     /**
@@ -148,21 +188,6 @@ class TaskController extends Controller
         } else {
             return "This Task with id: {$id}. Not exist";
         }
-    }
-
-    /**
-     * Aux method to get a single Task from DDBB.
-     * @param  int $id
-     * @return \App\Models\Task  $task
-     */
-    public function getTask($id)
-    {
-        if ($id == 0 || $id == null) {
-            return "ID can't be {$id}";
-        }
-
-        $task = Task::findOrFail($id);
-        return response()->json(view('tasks.taskFormModal', ['task' => $task])->render());
     }
 
     /**
