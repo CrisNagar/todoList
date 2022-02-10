@@ -11,9 +11,10 @@
                         <button type="button" class="btn btn-secondary">{{ __('Search') }}</button>
                         <div class="vr"></div>
                         <div class="text-end m-auto">
-                            <button type="button" class="btn btn-show-modal btn-outline-success align-items-center"
-                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('Add new taks') }}"
-                                data-bs-toggle="modal" data-bs-target="#taskFormModal">
+                            <button id="btnShowTaskFormModal" type="button"
+                                class="btn btn-outline-success align-items-center" data-bs-toggle="tooltip"
+                                data-bs-placement="bottom" title="{{ __('Add new taks') }}" data-bs-toggle="modal"
+                                data-bs-target="#taskFormModal">
                                 <i class="fas fa-plus-circle"></i>
                             </button>
                         </div>
@@ -28,6 +29,7 @@
         </div>
     </div>
 
-    @include('tasks.taskFormModal')
-    @include('components.toast')
+    <div id="taskModal">
+        @include('tasks.taskFormModal')
+    </div>
 @endsection
